@@ -9,6 +9,7 @@ import {
   setElementValue,
   trackFormControl,
 } from "@zag-js/dom-query"
+import { recordCursor, restoreCursor } from "@zag-js/input-mask"
 import type { Point } from "@zag-js/types"
 import {
   callAll,
@@ -21,7 +22,6 @@ import {
   snapValueToStep,
   mergeWithDefault,
 } from "@zag-js/utils"
-import { recordCursor, restoreCursor } from "./cursor"
 import * as dom from "./number-input.dom"
 import { defaultTranslations } from "./number-input.translations"
 import type { HintValue, NumberInputSchema, ValueChangeReason } from "./number-input.types"
@@ -498,10 +498,10 @@ export const machine = createMachine({
         const inputEl = dom.getInputEl(scope)
         // Record cursor position before sync if not provided in event
         // This handles external value changes while user is typing
-        const sel = event.selection ?? recordCursor(inputEl, scope)
+        const sel = event.selection ?? recordCursor(inputEl)
         raf(() => {
           setElementValue(inputEl, value)
-          restoreCursor(inputEl, sel, scope)
+          restoreCursor(inputEl, sel)
         })
       },
       setFormattedValue({ context, computed, action }) {
