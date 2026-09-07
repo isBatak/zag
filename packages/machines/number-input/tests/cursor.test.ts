@@ -127,4 +127,37 @@ describe("getNextCursorPosition", () => {
       expect(getNextCursorPosition("abcd", "XXXXXXXX", 2)).toBe(4)
     })
   })
+
+  describe("real-world formatting scenarios", () => {
+    test("delete a digit immediately before a literal separator", () => {
+      // "1 (234|) 567" -> backspace -> "1 (23|) 567" - cursor lands right after "3", before the paren
+      expect(getNextCursorPosition("1 (234) 567", "1 (23) 567", 6)).toBe(5)
+    })
+
+    // Forward Delete on "1 (234) 567" at position 6 is a content no-op, so restoreCursor's fast path never advances the cursor to 8 - needs the step 04 mask template.
+    test.todo(
+      "forward Delete landing on a literal separator still advances the cursor past it, even though the value is unchanged",
+    )
+
+    test("decimal separator adjacency - delete digit before separator", () => {
+      // "1|.23" -> backspace -> "|.23" - cursor lands right before the separator
+      expect(getNextCursorPosition("1.23", ".23", 1)).toBe(0)
+    })
+
+    test("decimal separator adjacency - type digit right after deleting", () => {
+      // "|.23" -> type "1" -> "1|.23" - cursor lands right after the new digit, not in the fraction
+      expect(getNextCursorPosition(".23", "1.23", 0)).toBe(1)
+    })
+
+    // Inserting text between a matching prefix and matching suffix wrongly collapses to right after the prefix - tracked for step 04.
+    test.fails("character substitution - case folding preserves cursor position", () => {
+      // "hello |world" -> insert "beautiful " -> "hello beautiful |world"
+      expect(getNextCursorPosition("hello world", "hello beautiful world", 6)).toBe(16)
+    })
+
+    test("trailing literal append - backspace removes separator with last digit", () => {
+      // "12-|" -> backspace -> "12|" - trailing separator is removed along with the last digit
+      expect(getNextCursorPosition("12-", "12", 3)).toBe(2)
+    })
+  })
 })
