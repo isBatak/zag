@@ -233,6 +233,9 @@ importers:
       '@zag-js/image-cropper':
         specifier: workspace:*
         version: link:../../packages/machines/image-cropper
+      '@zag-js/input-mask':
+        specifier: workspace:*
+        version: link:../../packages/utilities/input-mask
       '@zag-js/interact-outside':
         specifier: workspace:*
         version: link:../../packages/utilities/interact-outside
@@ -480,6 +483,9 @@ importers:
       '@zag-js/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@zag-js/date-input':
+        specifier: workspace:*
+        version: link:../../packages/machines/date-input
       '@zag-js/date-picker':
         specifier: workspace:*
         version: link:../../packages/machines/date-picker
@@ -534,6 +540,9 @@ importers:
       '@zag-js/image-cropper':
         specifier: workspace:*
         version: link:../../packages/machines/image-cropper
+      '@zag-js/input-mask':
+        specifier: workspace:*
+        version: link:../../packages/utilities/input-mask
       '@zag-js/interact-outside':
         specifier: workspace:*
         version: link:../../packages/utilities/interact-outside
@@ -814,6 +823,9 @@ importers:
       '@zag-js/image-cropper':
         specifier: workspace:*
         version: link:../../packages/machines/image-cropper
+      '@zag-js/input-mask':
+        specifier: workspace:*
+        version: link:../../packages/utilities/input-mask
       '@zag-js/interact-outside':
         specifier: workspace:*
         version: link:../../packages/utilities/interact-outside
@@ -1058,6 +1070,9 @@ importers:
       '@zag-js/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@zag-js/date-input':
+        specifier: workspace:*
+        version: link:../../packages/machines/date-input
       '@zag-js/date-picker':
         specifier: workspace:*
         version: link:../../packages/machines/date-picker
@@ -1112,6 +1127,9 @@ importers:
       '@zag-js/image-cropper':
         specifier: workspace:*
         version: link:../../packages/machines/image-cropper
+      '@zag-js/input-mask':
+        specifier: workspace:*
+        version: link:../../packages/utilities/input-mask
       '@zag-js/interact-outside':
         specifier: workspace:*
         version: link:../../packages/utilities/interact-outside
@@ -1316,6 +1334,9 @@ importers:
       '@zag-js/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@zag-js/date-input':
+        specifier: workspace:*
+        version: link:../../packages/machines/date-input
       '@zag-js/date-picker':
         specifier: workspace:*
         version: link:../../packages/machines/date-picker
@@ -1370,6 +1391,9 @@ importers:
       '@zag-js/image-cropper':
         specifier: workspace:*
         version: link:../../packages/machines/image-cropper
+      '@zag-js/input-mask':
+        specifier: workspace:*
+        version: link:../../packages/utilities/input-mask
       '@zag-js/interact-outside':
         specifier: workspace:*
         version: link:../../packages/utilities/interact-outside
@@ -1602,6 +1626,9 @@ importers:
       '@zag-js/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@zag-js/date-input':
+        specifier: workspace:*
+        version: link:../../packages/machines/date-input
       '@zag-js/date-picker':
         specifier: workspace:*
         version: link:../../packages/machines/date-picker
@@ -1656,6 +1683,9 @@ importers:
       '@zag-js/image-cropper':
         specifier: workspace:*
         version: link:../../packages/machines/image-cropper
+      '@zag-js/input-mask':
+        specifier: workspace:*
+        version: link:../../packages/utilities/input-mask
       '@zag-js/interact-outside':
         specifier: workspace:*
         version: link:../../packages/utilities/interact-outside
@@ -2709,6 +2739,9 @@ importers:
       '@zag-js/dom-query':
         specifier: workspace:*
         version: link:../../utilities/dom-query
+      '@zag-js/input-mask':
+        specifier: workspace:*
+        version: link:../../utilities/input-mask
       '@zag-js/types':
         specifier: workspace:*
         version: link:../../types
@@ -3520,6 +3553,16 @@ importers:
       mockdate:
         specifier: ^3.0.5
         version: 3.0.5
+
+  packages/utilities/input-mask:
+    dependencies:
+      '@zag-js/dom-query':
+        specifier: workspace:*
+        version: link:../dom-query
+    devDependencies:
+      clean-package:
+        specifier: 2.2.0
+        version: 2.2.0
 
   packages/utilities/interact-outside:
     dependencies:

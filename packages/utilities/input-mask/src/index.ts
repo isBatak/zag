@@ -1,0 +1,8 @@
+export { getNextCursorPosition } from "./diff"
+export { recordCursor, restoreCursor } from "./selection"
+export type { Selection } from "./selection"
+export { applyMask, deleteRawChar, editRawChars, maskIndexAfterRawCount, parseMaskTemplate, rawIndexAt } from "./mask"
+export type { EditRawCharsOptions, MaskTemplate } from "./mask"
+export { createInputMask } from "./create-input-mask"
+export type { AcceptPredicate, InputMaskController, InputMaskOptions, OverwriteEditResult } from "./create-input-mask"
+export { attachInputMask } from "./attach-input-mask"

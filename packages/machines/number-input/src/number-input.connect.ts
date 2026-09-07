@@ -10,9 +10,9 @@ import {
   raf,
   setCaretToEnd,
 } from "@zag-js/dom-query"
+import { recordCursor } from "@zag-js/input-mask"
 import type { EventKeyMap, NormalizeProps, PropTypes } from "@zag-js/types"
 import { mergeWithDefault, roundToDpr } from "@zag-js/utils"
-import { recordCursor } from "./cursor"
 import { parts } from "./number-input.anatomy"
 import * as dom from "./number-input.dom"
 import { defaultTranslations } from "./number-input.translations"
@@ -156,7 +156,7 @@ export function connect<T extends PropTypes>(
           send({ type: "INPUT.BLUR" })
         },
         onInput(event) {
-          const selection = recordCursor(event.currentTarget, scope)
+          const selection = recordCursor(event.currentTarget)
           send({ type: "INPUT.CHANGE", target: event.currentTarget, hint: "set", selection })
         },
         onBeforeInput(event) {
@@ -204,7 +204,7 @@ export function connect<T extends PropTypes>(
               event.preventDefault()
             },
             Enter(event) {
-              const selection = recordCursor(event.currentTarget, scope)
+              const selection = recordCursor(event.currentTarget)
               send({ type: "INPUT.ENTER", selection })
             },
           }
