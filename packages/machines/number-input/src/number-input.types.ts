@@ -1,5 +1,6 @@
 import type { NumberParser } from "@internationalized/number"
 import type { EventObject, Machine, Service } from "@zag-js/core"
+import type { InputMaskController } from "@zag-js/input-mask"
 import type { CommonProperties, LocaleProperties, PropTypes, RequiredBy } from "@zag-js/types"
 
 /* -----------------------------------------------------------------------------
@@ -149,6 +150,12 @@ export interface NumberInputProps extends LocaleProperties, CommonProperties {
    */
   formatOptions?: Intl.NumberFormatOptions | undefined
   /**
+   * Whether to reformat the value as the user types (`"change"`) or only when the
+   * input is blurred, `Enter` is pressed, or the value is incremented/decremented (`"blur"`)
+   * @default "blur"
+   */
+  formatMode?: "blur" | "change" | undefined
+  /**
    * Hints at the type of data that might be entered by the user. It also determines
    * the type of keyboard shown to the user on mobile devices
    * @default "decimal"
@@ -183,6 +190,7 @@ type PropsWithDefault =
   | "focusInputOnChange"
   | "clampValueOnBlur"
   | "allowOverflow"
+  | "formatMode"
   | "inputMode"
   | "pattern"
   | "step"
@@ -245,6 +253,10 @@ type ComputedContext = Readonly<{
    * The number i18n parser
    */
   parser: NumberParser
+  /**
+   * The mask controller used to live-format the value while typing (`formatMode: "change"`)
+   */
+  changeModeMask: InputMaskController | undefined
 }>
 
 export type HintValue = "increment" | "decrement"

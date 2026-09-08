@@ -10,6 +10,7 @@ export const props = createProps<NumberInputProps>()([
   "disabled",
   "focusInputOnChange",
   "form",
+  "formatMode",
   "formatOptions",
   "getRootNode",
   "id",

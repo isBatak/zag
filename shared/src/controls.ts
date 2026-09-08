@@ -90,7 +90,7 @@ export const numberInputControls = defineControls({
   clampValueOnBlur: { type: "boolean", defaultValue: true },
   allowMouseWheel: { type: "boolean", defaultValue: false },
   spinOnPress: { type: "boolean", defaultValue: true },
-  step: { type: "number", defaultValue: 1 },
+  step: { type: "number", defaultValue: 0.01 },
   largeStep: { type: "number" },
   smallStep: { type: "number" },
   min: { type: "number", defaultValue: 0 },
@@ -99,11 +99,17 @@ export const numberInputControls = defineControls({
     type: "select",
     options: ["en-US", "en-GB", "fr-FR", "de-DE", "ja-JP", "mk-MK", "zh-CN"] as const,
   },
+  formatMode: {
+    type: "select",
+    options: ["blur", "change"] as const,
+    defaultValue: "blur",
+  },
   "formatOptions.maximumFractionDigits": { type: "number" },
   "formatOptions.minimumFractionDigits": { type: "number" },
   "formatOptions.style": {
     type: "select",
     options: ["decimal", "currency", "percent"] as const,
+    defaultValue: "currency",
   },
   "formatOptions.currency": {
     type: "select",
