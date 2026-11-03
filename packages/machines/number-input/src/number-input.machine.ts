@@ -9,6 +9,7 @@ import {
   setElementValue,
   trackFormControl,
 } from "@zag-js/dom-query"
+import { recordCursor, restoreCursor } from "@zag-js/input-mask"
 import type { Point } from "@zag-js/types"
 import {
   callAll,
@@ -21,11 +22,17 @@ import {
   snapValueToStep,
   mergeWithDefault,
 } from "@zag-js/utils"
-import { recordCursor, restoreCursor } from "./cursor"
 import * as dom from "./number-input.dom"
 import { defaultTranslations } from "./number-input.translations"
 import type { HintValue, NumberInputSchema, ValueChangeReason } from "./number-input.types"
-import { createFormatter, createParser, formatValue, getDefaultStep, parseValue } from "./number-input.utils"
+import {
+  createChangeModeMask,
+  createFormatter,
+  createParser,
+  formatValue,
+  getDefaultStep,
+  parseValue,
+} from "./number-input.utils"
 
 const { choose, guards, createMachine } = setup<NumberInputSchema>()
 
@@ -40,6 +47,7 @@ export const machine = createMachine({
       focusInputOnChange: true,
       clampValueOnBlur: !props.allowOverflow,
       allowOverflow: false,
+      formatMode: "blur",
       inputMode: "decimal",
       pattern: "-?[0-9]*(.[0-9]+)?",
       defaultValue: "",
@@ -112,6 +120,11 @@ export const machine = createMachine({
     parser: memo(
       ({ prop }) => [prop("locale"), prop("formatOptions")],
       ([locale, formatOptions]) => createParser(locale, formatOptions),
+    ),
+    changeModeMask: memo(
+      ({ prop }) => [prop("formatMode"), prop("locale"), prop("formatOptions")],
+      ([formatMode, locale, formatOptions]) =>
+        formatMode === "change" ? createChangeModeMask(locale, formatOptions) : undefined,
     ),
   },
 
@@ -443,9 +456,10 @@ export const machine = createMachine({
         if (!prop("allowOverflow")) nextValue = clampValue(nextValue, prop("min"), prop("max"))
         context.set("value", formatValue(nextValue, { computed, prop }))
       },
-      setValue({ context, event }) {
+      setValue({ context, event, computed }) {
         const value = event.target?.value ?? event.value
-        context.set("value", value)
+        const changeModeMask = computed("changeModeMask")
+        context.set("value", changeModeMask ? changeModeMask.format(value) : value)
       },
       clearValue({ context }) {
         context.set("value", "")
@@ -498,10 +512,10 @@ export const machine = createMachine({
         const inputEl = dom.getInputEl(scope)
         // Record cursor position before sync if not provided in event
         // This handles external value changes while user is typing
-        const sel = event.selection ?? recordCursor(inputEl, scope)
+        const sel = event.selection ?? recordCursor(inputEl)
         raf(() => {
           setElementValue(inputEl, value)
-          restoreCursor(inputEl, sel, scope)
+          restoreCursor(inputEl, sel)
         })
       },
       setFormattedValue({ context, computed, action }) {

@@ -30,6 +30,7 @@
     "@zag-js/anatomy": "workspace:*",
     "@zag-js/core": "workspace:*",
     "@zag-js/dom-query": "workspace:*",
+    "@zag-js/input-mask": "workspace:*",
     "@zag-js/types": "workspace:*",
     "@zag-js/utils": "workspace:*"
   },

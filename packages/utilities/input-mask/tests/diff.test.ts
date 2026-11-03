@@ -1,5 +1,48 @@
 import { describe, expect, test } from "vitest"
-import { getNextCursorPosition } from "../src/cursor"
+import { getNextCursorPosition } from "../src/diff"
+
+type NativeEditOp = { type: "insert"; text: string } | { type: "backspace" } | { type: "delete" }
+
+function simulateNativeEdit(raw: string, selStart: number, selEnd: number, op: NativeEditOp) {
+  if (op.type === "insert") {
+    return { value: raw.slice(0, selStart) + op.text + raw.slice(selEnd), cursor: selStart + op.text.length }
+  }
+  if (op.type === "backspace") {
+    if (selStart !== selEnd) return { value: raw.slice(0, selStart) + raw.slice(selEnd), cursor: selStart }
+    if (selStart === 0) return { value: raw, cursor: 0 }
+    return { value: raw.slice(0, selStart - 1) + raw.slice(selStart), cursor: selStart - 1 }
+  }
+  if (selStart !== selEnd) return { value: raw.slice(0, selStart) + raw.slice(selEnd), cursor: selStart }
+  if (selStart >= raw.length) return { value: raw, cursor: selStart }
+  return { value: raw.slice(0, selStart) + raw.slice(selStart + 1), cursor: selStart }
+}
+
+function nextPositionAfterEdit(
+  rawBefore: string,
+  selStart: number,
+  selEnd: number,
+  op: NativeEditOp,
+  format: (raw: string) => string,
+) {
+  const { value: rawAfter, cursor } = simulateNativeEdit(rawBefore, selStart, selEnd, op)
+  return getNextCursorPosition(rawAfter, format(rawAfter), cursor)
+}
+
+function formatGroupedNumber(raw: string): string {
+  const cleaned = raw.replace(/[^\d.]/g, "")
+  const [intPart, ...rest] = cleaned.split(".")
+  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  return rest.length ? `${grouped}.${rest.join("")}` : grouped
+}
+
+function formatGrowingPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 11)
+  if (digits.length <= 1) return digits
+  const rest = digits.slice(1)
+  if (rest.length <= 3) return `1 (${rest}`
+  if (rest.length <= 6) return `1 (${rest.slice(0, 3)}) ${rest.slice(3)}`
+  return `1 (${rest.slice(0, 3)}) ${rest.slice(3, 6)}-${rest.slice(6)}`
+}
 
 describe("getNextCursorPosition", () => {
   describe("value unchanged", () => {
@@ -126,5 +169,43 @@ describe("getNextCursorPosition", () => {
       // "ab|cd" -> "XXXX|XXXX" - no match, uses 50% ratio (2/4 = 4/8)
       expect(getNextCursorPosition("abcd", "XXXXXXXX", 2)).toBe(4)
     })
+  })
+
+  describe("real-world formatting scenarios (driven by simulated native edits, not hand-picked pairs)", () => {
+    test("forward Delete on a literal separator: formatter reinserts it, cursor lands back before it", () => {
+      // "1 (234|) 567" -> Delete -> raw "1 (234 567", reformatted back to "1 (234) 567"
+      expect(nextPositionAfterEdit("1 (234) 567", 6, 6, { type: "delete" }, formatGrowingPhone)).toBe(6)
+    })
+
+    test("backspace a digit adjacent to a group boundary causes digits to reflow into the earlier group", () => {
+      // "1 (234|) 567" -> backspace -> raw "1 (23) 567", regrouped to "1 (235) 67"
+      expect(nextPositionAfterEdit("1 (234) 567", 6, 6, { type: "backspace" }, formatGrowingPhone)).toBe(5)
+    })
+
+    test("multi-character insert in the middle, formatter case-folds: cursor lands after the inserted text", () => {
+      // "hello |world" -> type "BeAuTiFuL " -> "hello beautiful |world"
+      expect(
+        nextPositionAfterEdit("hello world", 6, 6, { type: "insert", text: "BeAuTiFuL " }, (s) => s.toLowerCase()),
+      ).toBe(16)
+    })
+
+    test("backspace right before an unchanged suffix, formatter case-folds: cursor lands right before the suffix", () => {
+      expect(
+        nextPositionAfterEdit("hello BeAuTiFuL world", 16, 16, { type: "backspace" }, (s) => s.toLowerCase()),
+      ).toBe(15)
+    })
+
+    test("backspace the digit right before a decimal point in a grouped number", () => {
+      // "1,234|.56" -> backspace -> raw "1,23.56", regrouped to "123.56"
+      expect(nextPositionAfterEdit("1,234.56", 5, 5, { type: "backspace" }, formatGroupedNumber)).toBe(3)
+    })
+
+    test("typing a digit that grows the integer group across a new comma boundary", () => {
+      // "999|" -> type "9" -> "9999" -> "9,999"
+      expect(nextPositionAfterEdit("999", 3, 3, { type: "insert", text: "9" }, formatGroupedNumber)).toBe(5)
+    })
+
+    // Skipping forward through a literal on delete is a UX feature, not a bug fix - deferred to the mask-template engine.
+    test.todo("deleting a literal in a mask template skips forward to the next editable digit in one keystroke")
   })
 })
